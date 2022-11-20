@@ -1,0 +1,7 @@
+//
+prosty kod1 0,1 0,5 ewa morale 2
+//
+opt kod2 0,2 0,6 ania morale 3 frania zapasy 4
+//
+zamk kod3 0,3 0,7 a b c za każdą 1 poprawną: morale 1 błąd: morale -50
+

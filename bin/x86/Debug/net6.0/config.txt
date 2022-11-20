@@ -1,0 +1,12 @@
+//screen width [px]
+1920
+//screen height [px]
+1080
+//window title
+Misja na Marsa
+//console font name
+BlackOpsOne-Regular.ttf
+//time between questions [s]
+2
+//starting stats value
+50
