@@ -23,13 +23,13 @@ namespace MisjaNaMarsa
             background.Texture = new Texture("./AnswerDialog.png", new IntRect(0, 0, 1623, 1165));
             background.Position = new Vector2f(x,y);
 
-            field = new RectangleShape(new Vector2f(15 * size, 30));
+            field = new RectangleShape(new Vector2f(14 * size, 30));
 
 
             field.OutlineThickness = 2;
             field.FillColor = new Color(134, 222, 242);
             field.OutlineColor = new Color(127, 127, 127);
-            field.Position = new Vector2f(background.Position.X+(background.Size.X-15*size)/2, background.Position.Y + background.Size.Y/2-15);
+            field.Position = new Vector2f(background.Position.X+(background.Size.X-14*size)/2, background.Position.Y + background.Size.Y/2-15 + 50);
 
 
             hasFocus = true;
@@ -42,18 +42,28 @@ namespace MisjaNaMarsa
             this.text.CharacterSize = 25;
             this.text.Position = new Vector2f(field.Position.X+5, field.Position.Y);
 
+            this.name = new Text();
+
+            this.name.Font = new Font(fontPath);
+            this.name.DisplayedString = "";
+            this.name.Color = new Color(134, 222, 242);
+            this.name.CharacterSize = 25;
+
             this.result = "";
             this.answer = false;
         }
 
         int size;
         public Text text;
+        public Text name;
         public string result;
         RectangleShape field;
-        RectangleShape background;
+        public RectangleShape background;
         public bool hasFocus;
         public bool visible;
         public bool answer;
+
+
 
         public Question q;
 
@@ -116,6 +126,7 @@ namespace MisjaNaMarsa
             gameLoop.Window.Draw(this.background);
             gameLoop.Window.Draw(this.field);
             gameLoop.Window.Draw(this.text);
+            gameLoop.Window.Draw(this.name);
         }
     }
 }

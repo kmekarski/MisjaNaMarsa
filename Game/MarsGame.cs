@@ -26,17 +26,27 @@ namespace MisjaNaMarsa
         int startingStatsValue;
 
 
+
+        RectangleShape mainMenu = new RectangleShape();
         RectangleShape background = new RectangleShape();
         RectangleShape errorsTable = new RectangleShape();
         RectangleShape resourcesTable = new RectangleShape();
+        RectangleShape wrongAnswer = new RectangleShape();
+
+        bool toast = false;
+        float toastStart;
 
         bool errorsActive = false;
         bool resourcesActive = false;
         bool toggled = false;
 
+        bool started = false;
+
         Text[] statTexts = new Text[3];
 
         Text[] resourceTexts = new Text[9];
+
+        Text timer = new Text();
 
         QuestionManager qm = new QuestionManager();
 
@@ -51,6 +61,12 @@ namespace MisjaNaMarsa
         Button errorsBtn;
         Button resourcesBtn;
 
+        Button exitErrors;
+        Button exitResources;
+        Button exitAnswer;
+
+        Button startBtn;
+
         public MarsGame()
         {
         }
@@ -61,6 +77,11 @@ namespace MisjaNaMarsa
                 errorsActive = false;
             else
                 errorsActive = true;
+            if(answerField.visible)
+            {
+                answerField.visible = false;
+                answerField.text.DisplayedString = "";
+            }
         }
 
         void ToggleResources()
@@ -78,16 +99,22 @@ namespace MisjaNaMarsa
 
         public override void Draw(GameTime gameTime)
         {
-            this.Window.Draw(background);
 
-            //DebugUtility.DrawPerformenceData(this, Color.White);
-            //qm.DrawQuestionsData(this, Color.White);
+                this.Window.Draw(background);
 
-            DrawStats();
-            DrawButtons();
-            DrawWindows();
-            DrawResources();
-            DrawTextField();
+                //DebugUtility.DrawPerformenceData(this, Color.White);
+                //qm.DrawQuestionsData(this, Color.White);
+
+                DrawStats();
+                DrawButtons();
+                DrawWindows();
+                DrawResources();
+                DrawTextField();
+
+                if(toast)
+            {
+                this.Window.Draw(wrongAnswer);
+            }
         }
 
         private void DrawButtons()
@@ -105,11 +132,14 @@ namespace MisjaNaMarsa
                 {
                     btn.Draw(this);
                 }
+                exitErrors.Draw(this);
             }
 
             if(resourcesActive)
             {
                 this.Window.Draw(resourcesTable);
+                exitResources.Draw(this);
+
             }
         }
 
@@ -119,6 +149,7 @@ namespace MisjaNaMarsa
             {
                 this.Window.Draw(text);
             }
+            this.Window.Draw(timer);
         }
 
         public void DrawResources()
@@ -137,6 +168,7 @@ namespace MisjaNaMarsa
             if (answerField.visible)
             {
                 answerField.Draw(this);
+                exitAnswer.Draw(this);
             }
         }
         private void Window_KeyPressed(object sender, SFML.Window.KeyEventArgs e)
@@ -181,23 +213,30 @@ namespace MisjaNaMarsa
             Window.KeyPressed += Window_KeyPressed;
             Window.DispatchEvents();
 
+
+
+
             background.Size = new Vector2f(Convert.ToInt16(width), Convert.ToInt16(height));
             background.Texture = new Texture("./Dashboard.png", new IntRect(0, 0, Convert.ToInt16(width), Convert.ToInt16(height)));
 
-            errorsTable.Size = new Vector2f((4835/4501) * Convert.ToInt16(height)* 2 / 3, Convert.ToInt16(height) * 2 / 3);
+            errorsTable.Size = new Vector2f((4835/4501) * Convert.ToInt16(height)* 9 / 10, Convert.ToInt16(height) * 9 / 10);
             errorsTable.Texture = new Texture("./ErrorsTable.png", new IntRect(0, 0, 4835, 4501));
-            errorsTable.Position = new Vector2f(Convert.ToInt16(width) / 10, Convert.ToInt16(height) / 10);
+            errorsTable.Position = new Vector2f(Convert.ToInt16(width) / 10, Convert.ToInt16(height) / 15);
 
             resourcesTable.Size = new Vector2f(1132, Convert.ToInt16(height) * 2 / 3);
             resourcesTable.Texture = new Texture("./ResourcesTable.png", new IntRect(0, 0, 4835, 3076));
             resourcesTable.Position = new Vector2f(Convert.ToInt16(width) / 10, Convert.ToInt16(height) / 10);
+
+            wrongAnswer.Size = new Vector2f(417, 58);
+            wrongAnswer.Texture = new Texture("./WrongAnswer.png", new IntRect(0, 0, 834, 117));
+            wrongAnswer.Position = new Vector2f(Convert.ToInt16(width)/2 - 208, Convert.ToInt16(height)*3/4);
 
             this.stats["sprawnosc"] = startingStatsValue;
             this.stats["morale"] = startingStatsValue;
             this.stats["zapasy"] = startingStatsValue;
 
             this.stats["paliwo"] = 0;
-            this.stats["poszycie"] = 0;
+            this.stats["poszycie"] = 0;    
             this.stats["energia"] = 0;
             this.stats["chwytaki"] = 0;
             this.stats["gasienica"] = 0;
@@ -228,6 +267,12 @@ namespace MisjaNaMarsa
             errorsBtn = new Button(1365, 878, 264, 195, consoleFont, "", Color.Transparent, Color.Transparent, Color.Transparent);
             resourcesBtn = new Button(1623, 878, 264, 195, consoleFont, "", Color.Transparent, Color.Transparent, Color.Transparent);
 
+            exitErrors = new Button(983, 88, 30, 30, consoleFont, "", Color.Transparent, Color.Transparent, Color.Transparent);
+            exitResources = new Button(1161, 155, 50, 40, consoleFont, "", Color.Transparent, Color.Transparent, Color.Transparent);
+            exitAnswer = new Button(1315, 282, 20, 20, consoleFont, "", Color.Transparent, Color.Transparent, Color.Transparent);
+
+
+
 
             foreach (Text text in statTexts)
             {
@@ -243,6 +288,11 @@ namespace MisjaNaMarsa
                 text.CharacterSize = 62;
             }
 
+            timer.Font = new Font(consoleFont);
+            timer.Color = new Color(134, 222, 242);
+            timer.CharacterSize = 100;
+            timer.Position = new Vector2f(585, 905);
+
             answerField = new TextField(1000, 250, 20, consoleFont);
 
         }
@@ -256,58 +306,74 @@ namespace MisjaNaMarsa
         }
         public void UpdateButtons(GameTime gameTime)
         {
+
+
+
             errorsBtn.Update(mousePosWindow);
             resourcesBtn.Update(mousePosWindow);
 
-            foreach(Button btn in errors)
-            {
-                btn.Update(mousePosWindow);
-                if(btn.IsPressed())
-                {
-                    answerField.visible = true;
-                    answerField.q = btn.q;
-                }
-            }
+            exitErrors.Update(mousePosWindow);
+            exitResources.Update(mousePosWindow);
+            exitAnswer.Update(mousePosWindow);
 
-            if(errorsBtn.IsPressed() && !toggled)
-            {
-                ToggleErrors();
-                resourcesActive = false;
-                toggled = true;
-            }
-            if(errorsActive && errorsBtn.IsPressedOutside() && !toggled && !resourcesBtn.IsPressed())
-            {
-                if (!errorsTable.GetGlobalBounds().Contains(mousePosWindow.X, mousePosWindow.Y))
+
+
+
+                foreach (Button btn in errors)
+                {
+                    btn.Update(mousePosWindow);
+                    if (btn.IsPressed())
+                    {
+                        answerField.visible = true;
+                        answerField.q = btn.q;
+                    answerField.name.DisplayedString = btn.q.qCode;
+                    answerField.name.Position = new Vector2f(answerField.background.Position.X + 150 + answerField.name.GetGlobalBounds().Width / 2,
+                                                            answerField.background.Position.Y + 50 + answerField.name.GetGlobalBounds().Height / 2);
+
+                }
+                }
+
+                if (errorsBtn.IsPressed() && !toggled)
                 {
                     ToggleErrors();
+                    resourcesActive = false;
                     toggled = true;
                 }
-            }
-
-            if(resourcesBtn.IsPressed() && !toggled)
-            {
-
-                ToggleResources();
-                errorsActive = false;
-                toggled = true;
-            }
-
-            if (resourcesActive && resourcesBtn.IsPressedOutside() && !toggled && !errorsBtn.IsPressed())
-            {
-                if (!resourcesTable.GetGlobalBounds().Contains(mousePosWindow.X, mousePosWindow.Y))
+                if (exitErrors.IsPressed() && !toggled)
                 {
+
+                        ToggleErrors();
+                        toggled = true;
+                }
+
+                if (resourcesBtn.IsPressed() && !toggled)
+                {
+                if (errorsActive)
+                    ToggleErrors();
                     ToggleResources();
+                    errorsActive = false;
                     toggled = true;
                 }
+
+                if (exitResources.IsPressed() && !toggled)
+                {
+                        ToggleResources();
+                        toggled = true;
+                }
+                if(answerField.visible && exitAnswer.IsPressed())
+            {
+                answerField.visible = false;
+                answerField.text.DisplayedString = "";
             }
 
-            if (!errorsBtn.IsPressed() && !resourcesBtn.IsPressed())
-            {
-                toggled = false;
-            }
+                if (!errorsBtn.IsPressed() && !resourcesBtn.IsPressed() && !exitErrors.IsPressed() && !exitResources.IsPressed() && !exitAnswer.IsPressed())
+                {
+                    toggled = false;
+                }
+            
         }
 
-        public void UpdateBars()
+        public void UpdateBars(GameTime gameTime)
         {
             for(int i=0; i<3; i++)
             {
@@ -339,6 +405,14 @@ namespace MisjaNaMarsa
             {
                 resourceTexts[i].Position = new Vector2f(1110-resourceTexts[i].GetGlobalBounds().Width / 2, (float)(Math.Round(211+(58.8*i)) - resourceTexts[i].GetGlobalBounds().Height / 2));
             }
+            int timeElapsed = (int)Math.Round(gameTime.TotalTimeElapsed);
+            int minutes = timeElapsed/60;
+            timer.DisplayedString = minutes + ":";
+            int seconds = timeElapsed - 60 * minutes;
+            if (seconds < 10)
+                timer.DisplayedString += "0";
+            timer.DisplayedString += seconds;
+
         }
 
         void UpdateErrors(GameTime gameTime)
@@ -348,8 +422,8 @@ namespace MisjaNaMarsa
                 errors.Clear();
                 foreach(Question q in qm.activeQuestions)
                 {
-                    errors.Add(new Button(errorsTable.Position.X + 95 * Convert.ToInt16(width) / 4835, errorsTable.Position.Y + 645 * Convert.ToInt16(height) / 4501 + 52 * (errors.Count),
-                                          645, 50, consoleFont, q));
+                    errors.Add(new Button(errorsTable.Position.X + 245 * Convert.ToInt16(width) / 4835, (float)(errorsTable.Position.Y + 615 * Convert.ToInt16(height) / 4501 + 31.5 * (errors.Count)),
+                                          774f, 29f, consoleFont, q));
                 }
                 added = true;
             }
@@ -359,7 +433,7 @@ namespace MisjaNaMarsa
                 added = false;
             }
         }
-        void CheckAnswer()
+        void CheckAnswer(GameTime gameTime)
         {
             if (!answerField.answer)
                 return;
@@ -367,8 +441,9 @@ namespace MisjaNaMarsa
             {
                 int correct = 0;
                 bool mistake = false;
-                string[] answers = answerField.result.Split(' ');
-                
+
+                string[] answers = answerField.result.Trim().Split(' ');
+               
                     for (int j = 0; j < answers.Length; j++)
                     {
                         if (answerField.q.answers.ContainsKey(answers[j]))
@@ -384,6 +459,7 @@ namespace MisjaNaMarsa
                     if(mistake)
                 {
                     stats[answerField.q.type3Wrong.Item1] += answerField.q.type3Wrong.Item2;
+                    WrongAnswerStart(gameTime);
                 }
                 else
                 {
@@ -394,29 +470,55 @@ namespace MisjaNaMarsa
             }
             else
             {
+                bool mistake = true;
                 for (int i = 0; i < answerField.q.answers.Count; i++)
                 {
-                    if (answerField.q.answers.ContainsKey(answerField.result))
+
+                    if (answerField.q.answers.ContainsKey(answerField.result.Trim()))
                     {
-                        stats[answerField.q.answers[answerField.result].Item1] += answerField.q.answers[answerField.result].Item2;
+                        stats[answerField.q.answers[answerField.result.Trim()].Item1] += answerField.q.answers[answerField.result.Trim()].Item2;
+                        mistake = false;
                         break;
                     }
+
                 }
-                
+                if (mistake)
+                {
+                    WrongAnswerStart(gameTime);
+                }
+
+
             }
             answerField.answer = false;
             errors.Remove(errors.Find(x => x.q == answerField.q));
             qm.activeQuestions.Remove(answerField.q);
         }
 
+        private void WrongAnswerStart(GameTime gameTime)
+        {
+            if (!toast)
+            {
+                toast = true;
+                toastStart = gameTime.TotalTimeElapsed;
+            }
+        }
+
+        private void WrongAnswerUpdate(GameTime gameTime)
+        {
+            if (toast && gameTime.TotalTimeElapsed > toastStart + 5)
+                toast = false;
+        }
+
+
         public override void Update(GameTime gameTime)
         {
             this.mousePosWindow = Mouse.GetPosition(this.Window);
             qm.Update(gameTime);
-            CheckAnswer();
+            CheckAnswer(gameTime);
             UpdateErrors(gameTime);
             UpdateButtons(gameTime);
-            UpdateBars();
+            UpdateBars(gameTime);
+            WrongAnswerUpdate(gameTime);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace MisjaNaMarsa
         public float TotalTimeElapsed
         {
             get;
-            private set;
+            set;
         }
 
         public GameTime()

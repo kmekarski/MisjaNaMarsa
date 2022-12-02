@@ -6,7 +6,8 @@ namespace MisjaNaMarsa
     {
         public static void Main(string[] args)
         {
-            MarsGame game = new MarsGame();
+            MainMenu game = new MainMenu();
+            
 
             game.Run();
         }

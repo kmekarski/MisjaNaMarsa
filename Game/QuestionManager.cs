@@ -53,24 +53,24 @@ namespace MisjaNaMarsa
                     {
                         case "prosty":
                             noOfAnswers = 1;
-                            answers.Add(bits[4], new Tuple<string, int>(bits[5], Convert.ToInt16(bits[6])));
-                            questions.Add(new Question(bits[0], bits[1], Convert.ToDouble(bits[2]), Convert.ToDouble(bits[3]), answers, type3Correct, type3Wrong));
+                            answers.Add(bits[5], new Tuple<string, int>(bits[6], Convert.ToInt16(bits[7])));
+                            questions.Add(new Question(bits[0], bits[1], bits[2], Convert.ToDouble(bits[3]), Convert.ToDouble(bits[4]), answers, type3Correct, type3Wrong));
                             break;
 
                         case "opt":
-                            noOfAnswers = (bits.Length - 4) / 3;
+                            noOfAnswers = (bits.Length - 5) / 3;
                             for (int i = 0; i < noOfAnswers; i++)
-                                answers.Add(bits[1 + 3 * (i+1)], new Tuple<string, int>(bits[2 + 3 * (i+1)], Convert.ToInt16(bits[3 + 3 * (i+1)])));
-                            questions.Add(new Question(bits[0], bits[1], Convert.ToDouble(bits[2]), Convert.ToDouble(bits[3]), answers, type3Correct, type3Wrong));
+                                answers.Add(bits[2 + 3 * (i+1)], new Tuple<string, int>(bits[3 + 3 * (i+1)], Convert.ToInt16(bits[4 + 3 * (i+1)])));
+                            questions.Add(new Question(bits[0], bits[1], bits[2], Convert.ToDouble(bits[3]), Convert.ToDouble(bits[4]), answers, type3Correct, type3Wrong));
                             break;
 
                         case "zamk":
-                            noOfAnswers = bits.Length - 13;
+                            noOfAnswers = bits.Length - 14;
                             for (int i = 0; i < noOfAnswers; i++)
-                                answers.Add(bits[4 + i], new Tuple<string, int>("",0));
-                            type3Correct.Add(Convert.ToInt16(bits[6 + noOfAnswers]), new Tuple<string, int>(bits[8 + noOfAnswers], Convert.ToInt16(bits[9 + noOfAnswers])));
-                            type3Wrong = new Tuple<string, int>(bits[11 + noOfAnswers], Convert.ToInt16(bits[12 + noOfAnswers]));
-                            questions.Add(new Question(bits[0], bits[1], Convert.ToDouble(bits[2]), Convert.ToDouble(bits[3]), answers, type3Correct, type3Wrong));
+                                answers.Add(bits[5 + i], new Tuple<string, int>("",0));
+                            type3Correct.Add(Convert.ToInt16(bits[7 + noOfAnswers]), new Tuple<string, int>(bits[9 + noOfAnswers], Convert.ToInt16(bits[10 + noOfAnswers])));
+                            type3Wrong = new Tuple<string, int>(bits[12 + noOfAnswers], Convert.ToInt16(bits[13 + noOfAnswers]));
+                            questions.Add(new Question(bits[0], bits[1], bits[2], Convert.ToDouble(bits[3]), Convert.ToDouble(bits[4]), answers, type3Correct, type3Wrong));
                             break;
 
                     }

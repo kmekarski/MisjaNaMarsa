@@ -26,7 +26,7 @@ namespace MisjaNaMarsa
         public GameTime GameTime
         {
             get;
-            protected set;    
+            set;    
         }
 
         public Color WindowClearColor
